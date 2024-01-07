@@ -1,13 +1,11 @@
-import React, { usestate } from "react";
+import React, { useEffect, usestate } from "react";
 import { TodoProvider } from "./contexts";
 
 const App = () => {
   const [todos, setTodos] = usestate([]);
 
   const addTodo = (todo) => {
-    setTodos((prev) => {
-      [{ id: Date.now(), ...todo }, ...prev];
-    });
+    setTodos((prev) => [{ id: Date.now(), ...todo }, ...prev]);
   };
 
   const updateTodo = (id, todo) => {
@@ -15,17 +13,30 @@ const App = () => {
       prev.map((prevTodo) => (prevTodo.id === id ? todo : prevTodo));
     });
   };
-  const toggleTodo =(id)=>{
-      setTodos((prev)=>(
-        prev.map((prevTodo)=>(prevTodo.id===id?{...prevTodo, completed:!prevTodo.completed} : prevTodo))
-      ))
-  }
+  const toggleTodo = (id) => {
+    setTodos((prev) =>
+      prev.map((prevTodo) =>
+        prevTodo.id === id
+          ? { ...prevTodo, completed: !prevTodo.completed }
+          : prevTodo
+      )
+    );
+  };
 
-  const deleteTodo=(id)=>{
-    setTodos((prev)=>prev.filter((todos)=>todos.id!==id))
+  const deleteTodo = (id) => {
+    setTodos((prev) => prev.filter((todos) => todos.id !== id));
+  };
 
-  }
+  useEffect(() => {
+    const todos = JSON.parse(localStorage.getItem("todos"));
+    if (todos && todos.length > 0) {
+      setTodos(todos);
+    }
+  });
 
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
 
   return (
     <TodoProvider
